@@ -1,11 +1,20 @@
 import asyncio
+from fastapi import FastAPI
 from models import API
 
-async def main(address: str):
-    data = await API.get_address_info(address)
-    print(data)
+app = FastAPI()
 
-if __name__ == '__main__':
-    test_address = '0x7e5ce10826ee167de897d262fcc9976f609ecd2b'
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(test_address))
+@app.get("/analytics/{address}")   
+async def get_analytics(address):
+    trx_data = await API.get_transactions_data(address)
+    info = await API.get_address_info(address)
+    print(info)
+    addresses, trx_count, young_contract, earliest_timestamp = trx_data
+    return {
+            'addresses': len(addresses), 
+            'trxCount': trx_count, 
+            'isYoung': young_contract, 
+            'earliestTimestamp': earliest_timestamp, 
+            'type': info['type'], 
+            'proxyCount': len(info['proxies'])
+    }
