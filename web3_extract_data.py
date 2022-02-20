@@ -13,12 +13,16 @@ USDC = W3.eth.contract(address=USDC_ADDR, abi=USDC_ABI)
 TOKEN_ABI = '[ { "constant": true, "inputs": [], "name": "name", "outputs": [ { "name": "", "type": "string" } ], "payable": false, "type": "function" }, { "constant": true, "inputs": [], "name": "decimals", "outputs": [ { "name": "", "type": "uint8" } ], "payable": false, "type": "function" }, { "constant": true, "inputs": [ { "name": "_owner", "type": "address" } ], "name": "balanceOf", "outputs": [ { "name": "balance", "type": "uint256" } ], "payable": false, "type": "function" }, { "constant": true, "inputs": [], "name": "symbol", "outputs": [ { "name": "", "type": "string" } ], "payable": false, "type": "function" } ]'
 
 def is_token_erc20(address):
-    token = W3.eth.contract(address, abi=TOKEN_ABI)
+    token = W3.eth.contract(Web3.toChecksumAddress(address), abi=TOKEN_ABI)
     try:
         token.functions.decimals().call()
         return True
-    except BadFunctionCallOutput:
+    except:
         return False
+
+def is_contract(address):
+    code = W3.eth.get_code(Web3.toChecksumAddress(address))
+    return len(code) >= 3
 
 def USDT_get_blackListStatus(address):
     return USDT.functions.getBlackListStatus(address).call()

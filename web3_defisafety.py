@@ -1,3 +1,4 @@
+from audioop import add
 import json
 
 tokens = {}
@@ -5,9 +6,9 @@ all_token = {}
 
 data = open(r'./defisafety.json', 'r')
 for item in json.loads(data.read()):
-    tokens[item['tokenAddress']]=item['breakdowns'][3]['percentage']
     if(item['tokenAddress'] != None):
-        all_token[item['tokenAddress']] = True
+        tokens[item['tokenAddress'].lower()]=item['breakdowns'][3]['percentage']
+        all_token[item['tokenAddress'].lower()] = True
 
 def is_token(address):
     if address == None:
@@ -16,4 +17,5 @@ def is_token(address):
         return address in all_token
 
 def defisafety_security_percentage(address):
-    return tokens[address]
+    _is_token = is_token(address)
+    return _is_token, tokens[address] if _is_token else 0

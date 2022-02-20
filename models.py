@@ -2,6 +2,7 @@ import socketio
 import asyncio
 from web3 import Web3
 from utils import extract_addresses_from_transactions
+import time
 
 sio = socketio.AsyncClient(logger=False, engineio_logger=False)
 w3 = Web3(Web3.HTTPProvider('https://eth-mainnet.alchemyapi.io/v2/qjXOAXBstwICKl3R3EW6TC5lJbssTn4F'))
@@ -11,8 +12,10 @@ class ZerionAPI:
     API_TOKEN = 'Demo.ukEVQp6L5vfgxcz4sBke7XvS873GMYHy'
     ORIGIN = 'http://localhost:3000'
     TRANSACTIONS_LIMIT = 100
-    MAX_TRANSACTIONS = 10000
+    MAX_TRANSACTIONS = 5000
     MAX_PERIOD = 60 * 60 * 24 * 30 # 1 month
+    API_CALL_AT = 0
+    TIMEOUT = 2
     
     def __init__(self):
         self.ADDRESS_INFO = None
@@ -32,6 +35,7 @@ class ZerionAPI:
             await asyncio.sleep(0)
 
     async def get_address_info(self, address):
+        self.API_CALL_AT = time.time()
         self.ADDRESS_INFO = None
         await self.connect_to_socket()
         
@@ -43,11 +47,15 @@ class ZerionAPI:
         }, namespace='/address')
 
         while not self.ADDRESS_INFO:
+            if time.time() - self.API_CALL_AT > self.TIMEOUT:
+                self.ADDRESS_INFO = {'proxies': []}
+                break
             await asyncio.sleep(0)
 
         return self.ADDRESS_INFO
 
     async def _get_last_transactions(self, address, offset=0):
+        self.API_CALL_AT = time.time()
         self.TRANSACTIONS = None
         print("getting address info: ", address)
         await self.connect_to_socket()
@@ -62,8 +70,11 @@ class ZerionAPI:
         }, namespace='/address')
 
         while not self.TRANSACTIONS:
+            if time.time() - self.API_CALL_AT > self.TIMEOUT:
+                self.TRANSACTIONS = []
+                break
             await asyncio.sleep(0)
-            
+
         print("received")
         return self.TRANSACTIONS
 
