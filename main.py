@@ -9,11 +9,11 @@ async def get_analytics(address):
     trx_data = await API.get_transactions_data(address)
     info = await API.get_address_info(address)
     print(info)
-    addresses, trx_count, young_contract, earliest_timestamp = trx_data
+    addresses, trx_count, is_new, earliest_timestamp = trx_data
     return {
             'addresses': len(addresses), 
             'trxCount': trx_count, 
-            'isYoung': young_contract, 
+            'new': is_new, 
             'earliestTimestamp': earliest_timestamp, 
             'type': info['type'], 
             'proxyCount': len(info['proxies'])

@@ -70,7 +70,7 @@ class ZerionAPI:
     async def get_transactions_data(self, address):
         addresses = set()
         batch = None
-        young_contract = False
+        is_new = False
         trx_count = 0
         timestamp = w3.eth.getBlock('latest')['timestamp']
         earliest_timestamp = timestamp
@@ -81,12 +81,12 @@ class ZerionAPI:
             batch = await self._get_last_transactions(address, trx_count)
             trx_count += len(batch)
             if len(batch) < self.TRANSACTIONS_LIMIT:
-                young_contract = True
+                is_new = True
             earliest_timestamp = batch[-1]['mined_at'] if len(batch) > 0  else earliest_timestamp
             addresses.update(extract_addresses_from_transactions(batch))
             print(len(addresses), earliest_timestamp)
         print(timestamp - earliest_timestamp)
-        return addresses, trx_count, young_contract, earliest_timestamp
+        return addresses, trx_count, is_new, earliest_timestamp
 
 
 API = ZerionAPI()
