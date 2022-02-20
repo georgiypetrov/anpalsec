@@ -37,4 +37,3 @@ def USDC_get_balanceOf(address):
 
 def USDC_get_decimal(address):
     return USDC.functions.decimals().call()
-
